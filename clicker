@@ -1,0 +1,102 @@
+# geeksforgeeks.org/how-to-make-a-python-auto-clicker/#
+# DO NOT run this on a computer you plan to use at the same time as this runs in the background. 
+# This clicker will take possession of your mouse. You can move the mouse while the clicker is running but you
+# cannot stop it from clicking unless you have the python intepreter window active and press the "A" or "S" button.
+# 
+# To test out this clicker i would suggest to download the Free game BANANA on steam.
+# After you are comfortable 2 games I've used this clicker on are Clicker Heroes (next step up from BANANA and Idle Slayer (I'm still working on
+# getting the clicker working with that game. I think it needs more "logic" before it works as I expect)
+#
+# As for python dependencies you need to install I think both time and threading are installed by default as you install python.
+# pynput I think you will need to install. from the command line (windows) run the following command:
+# pip install pynput
+#
+# you can verify if pynput is installed by running:
+# pip list
+# now the code below. by default. python will exit the currently running script if you shove the mouse in the upper left corner of your screen.
+# I am about 50/50 wether this works before it keeps clicking along the way. Helps to find a way that works for you while "playing" banana.
+# One thing i've noticed is that it seems like Banana will only allow x number of button presses per second. I changed the rate at which
+# it clicks and it doesn't seem to go any faster. BUT if i change the click rate while playing Clicker Heroes.. it is very noticable...VERY
+# if all else fails. pull the power to your computer and turn it back on to get out of the script. (I've done it a few times in the past.)
+
+import time
+import threading
+from pynput.mouse import Button, Controller
+
+# pynput.keyboard is used to watch events of
+# keyboard for start and stop of auto-clicker
+from pynput.keyboard import Listener, KeyCode
+
+# four variables are created to
+# control the auto-cliker
+#delay = 0.00001
+delay = 0.00000001
+
+button = Button.left
+start_stop_key = KeyCode(char='a')
+stop_key = KeyCode(char='s')
+
+# threading.Thread is used
+# to control clicks
+
+class ClickMouse(threading.Thread):
+
+    # delay and button is passed in class
+    # to check execution of auto-clicker
+        def __init__(self, delay, button):
+            super(ClickMouse, self).__init__()
+            self.delay = delay
+            self.button = button
+            self.running = False
+            self.program_running = True
+
+        def start_clicking(self):
+            self.running = True
+
+        def stop_clicking(self):
+            self.running = False
+
+        def exit(self):
+            self.stop_clicking()
+            self.program_running = False
+
+        # method to check and run loop until
+        # it is true another loop will check
+        # if it is set to true or not, 
+        # for mouse click it set to button
+        # and delay.
+        def run(self):
+            while self.program_running:
+                while self.running:
+                    mouse.click(self.button)
+                    time.sleep(self.delay)
+                    time.sleep(0.1)
+
+# instance of mouse controller is created
+mouse = Controller()
+click_thread = ClickMouse(delay, button)
+click_thread.start()
+
+# on_press method takes
+# key as argument
+def on_press(key):
+
+    # start_stop_key will stop clicking
+    # if running flag is set to true
+    if key == start_stop_key:
+        if click_thread.running:
+            click_thread.stop_clicking()
+        else:
+            click_thread.start_clicking()
+        # key is pressed it terminates auto clicker
+    elif key == stop_key:
+        click_thread.exit()
+        listener.stop()
+
+with Listener(on_press=on_press) as listener:
+    listener.join()
+        
+
+
+
+
